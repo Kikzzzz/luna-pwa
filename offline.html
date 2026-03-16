@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a0a2e" />
+  <title>Luna — Offline</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=DM+Sans:wght@400&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#0d0818; --rose:#e8708a; --text:#f0eaf5; --muted:#8a7fa0; }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      min-height:100vh;
+      background:var(--bg);
+      color:var(--text);
+      font-family:'DM Sans',sans-serif;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:40px 24px;
+    }
+    .moon {
+      font-size:80px;
+      animation:float 3s ease-in-out infinite;
+      margin-bottom:24px;
+    }
+    @keyframes float {
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-12px)}
+    }
+    h1 {
+      font-family:'Cormorant Garamond',serif;
+      font-size:42px;
+      font-weight:300;
+      letter-spacing:4px;
+      margin-bottom:12px;
+    }
+    p {
+      color:var(--muted);
+      font-size:15px;
+      max-width:280px;
+      line-height:1.6;
+      margin-bottom:32px;
+    }
+    button {
+      background:linear-gradient(135deg,#e8708a,#9b7fe8);
+      color:#fff;
+      border:none;
+      border-radius:10px;
+      padding:12px 28px;
+      font-size:14px;
+      font-family:'DM Sans',sans-serif;
+      cursor:pointer;
+      letter-spacing:0.5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="moon">🌙</div>
+  <h1>You're Offline</h1>
+  <p>Luna needs a connection to sync your data. Your previous data remains available.</p>
+  <button onclick="location.reload()">Try Again</button>
+</body>
+</html>

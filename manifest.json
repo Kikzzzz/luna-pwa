@@ -1,0 +1,64 @@
+{
+  "name": "Luna — Cycle & Wellness",
+  "short_name": "Luna",
+  "description": "Your intelligent menstrual health and fasting companion",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0d0818",
+  "theme_color": "#1a0a2e",
+  "orientation": "portrait-primary",
+  "lang": "en",
+  "scope": "./",
+  "categories": ["health", "lifestyle"],
+  "icons": [
+    {
+      "src": "icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Log Today",
+      "short_name": "Log",
+      "description": "Open today's wellness log",
+      "url": "./?action=log",
+      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Fasting Tracker",
+      "short_name": "Fasting",
+      "description": "View fasting tracker",
+      "url": "./?view=fasting",
+      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
+    }
+  ],
+  "screenshots": [],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

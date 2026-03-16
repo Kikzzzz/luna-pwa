@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a0a2e" />
+  <meta name="description" content="Luna — Your intelligent menstrual health companion" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Luna" />
+  <title>Luna — Cycle & Wellness</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- Favicon & Icons -->
+  <link rel="icon" type="image/svg+xml" href="icons/favicon.svg" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<!-- ===== AUTH SCREEN ===== -->
+<div id="auth-screen" class="screen active">
+  <div class="auth-bg">
+    <div class="moon-glow"></div>
+    <div class="stars" id="stars"></div>
+  </div>
+  <div class="auth-container">
+    <div class="auth-logo">
+      <svg viewBox="0 0 60 60" class="luna-icon-large">
+        <circle cx="30" cy="30" r="28" fill="none" stroke="var(--rose)" stroke-width="1.5" opacity="0.4"/>
+        <path d="M30 8 C18 8 8 18 8 30 C8 42 18 52 30 52 C24 44 22 37 22 30 C22 23 24 16 30 8Z" fill="var(--rose)" opacity="0.8"/>
+        <circle cx="38" cy="22" r="3" fill="var(--gold)" opacity="0.9"/>
+        <circle cx="42" cy="35" r="1.5" fill="var(--gold)" opacity="0.6"/>
+      </svg>
+      <h1 class="auth-title">Luna</h1>
+      <p class="auth-subtitle">Your intelligent cycle companion</p>
+    </div>
+
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="signin">Sign In</button>
+        <button class="auth-tab" data-tab="signup">Create Account</button>
+      </div>
+
+      <form id="signin-form" class="auth-form active">
+        <div class="field-group">
+          <label>Email</label>
+          <input type="email" id="signin-email" placeholder="you@example.com" required />
+        </div>
+        <div class="field-group">
+          <label>Password</label>
+          <input type="password" id="signin-password" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn-primary btn-full">Enter Luna</button>
+        <p class="auth-error" id="signin-error"></p>
+      </form>
+
+      <form id="signup-form" class="auth-form">
+        <div class="field-group">
+          <label>Email</label>
+          <input type="email" id="signup-email" placeholder="you@example.com" required />
+        </div>
+        <div class="field-group">
+          <label>Password</label>
+          <input type="password" id="signup-password" placeholder="Min. 8 characters" required />
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label>Avg. Cycle <span class="field-optional">(optional)</span></label>
+            <input type="number" id="cycle-avg" value="28" min="18" max="50" placeholder="28" />
+          </div>
+          <div class="field-group">
+            <label>Period Length <span class="field-optional">(optional)</span></label>
+            <input type="number" id="period-length" value="5" min="1" max="14" placeholder="5" />
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Last Period Started <span class="field-optional">(optional)</span></label>
+          <input type="date" id="last-period" />
+          <span class="field-hint">Helps predict your next cycle — you can add this later in Profile</span>
+        </div>
+        <button type="submit" class="btn-primary btn-full">Begin Journey</button>
+        <p class="auth-error" id="signup-error"></p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div id="app-screen" class="screen">
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <div class="top-bar-left">
+      <svg viewBox="0 0 30 30" class="luna-icon-sm">
+        <path d="M15 3 C9 3 3 9 3 15 C3 21 9 27 15 27 C12 22 11 18.5 11 15 C11 11.5 12 7.5 15 3Z" fill="var(--rose)"/>
+        <circle cx="19" cy="11" r="2" fill="var(--gold)"/>
+      </svg>
+      <span class="app-name">Luna</span>
+    </div>
+    <div class="top-bar-right">
+      <button class="icon-btn" id="notify-btn" title="Enable notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+      <button class="icon-btn" id="signout-btn" title="Sign out">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Nav Tabs -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-view="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      <span>Today</span>
+    </button>
+    <button class="nav-btn" data-view="calendar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Calendar</span>
+    </button>
+    <button class="nav-btn" data-view="fasting">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a10 10 0 1 0 0 20"/><path d="M12 6v6l4 2"/><path d="M20 12h2M20 18l1.5 1.5M20 6l1.5-1.5"/></svg>
+      <span>Fasting</span>
+    </button>
+    <button class="nav-btn" data-view="analysis">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span>Insights</span>
+    </button>
+    <button class="nav-btn" data-view="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>Profile</span>
+    </button>
+  </nav>
+
+  <!-- Views -->
+  <main class="main-content">
+
+    <!-- ===== HOME VIEW ===== -->
+    <section id="view-home" class="view active">
+      <div class="home-scroll">
+        <!-- Cycle Ring -->
+        <div class="cycle-hero">
+          <div class="cycle-ring-wrap">
+            <svg class="cycle-ring" viewBox="0 0 200 200">
+              <defs>
+                <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="var(--rose)"/>
+                  <stop offset="100%" stop-color="var(--violet)"/>
+                </linearGradient>
+              </defs>
+              <circle cx="100" cy="100" r="85" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="12"/>
+              <circle cx="100" cy="100" r="85" fill="none" stroke="url(#ringGrad)" stroke-width="12"
+                stroke-linecap="round" stroke-dasharray="534" stroke-dashoffset="534"
+                id="cycle-progress-arc" transform="rotate(-90 100 100)"/>
+            </svg>
+            <div class="cycle-ring-inner">
+              <div class="cycle-day-num" id="cycle-day-display">–</div>
+              <div class="cycle-day-label">Day of Cycle</div>
+              <div class="phase-badge" id="phase-badge">Loading…</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Info Cards -->
+        <div class="cards-grid">
+          <div class="info-card card-rose">
+            <div class="card-icon">🌸</div>
+            <div class="card-label">Next Period</div>
+            <div class="card-value" id="next-period-display">–</div>
+          </div>
+          <div class="info-card card-gold">
+            <div class="card-icon">🌕</div>
+            <div class="card-label">Ovulation</div>
+            <div class="card-value" id="ovulation-display">–</div>
+          </div>
+          <div class="info-card card-violet">
+            <div class="card-icon">🤲</div>
+            <div class="card-label">Missed Fasts</div>
+            <div class="card-value" id="missed-fasts-display">–</div>
+          </div>
+          <div class="info-card card-teal">
+            <div class="card-icon">📅</div>
+            <div class="card-label">Cycle Avg</div>
+            <div class="card-value" id="cycle-avg-display">– days</div>
+          </div>
+        </div>
+
+        <!-- Today's Log CTA -->
+        <div class="today-cta">
+          <h3 class="section-title">Today's Wellness</h3>
+          <div class="today-log-preview" id="today-log-preview">
+            <div class="no-log-msg">No log yet for today</div>
+          </div>
+          <button class="btn-primary btn-log-today" id="log-today-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Log Today
+          </button>
+        </div>
+
+        <!-- Phase Info -->
+        <div class="phase-info-card" id="phase-info-card">
+          <h4 class="phase-info-title" id="phase-info-title">Current Phase</h4>
+          <p class="phase-info-text" id="phase-info-text"></p>
+          <div class="phase-tips" id="phase-tips"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CALENDAR VIEW ===== -->
+    <section id="view-calendar" class="view">
+      <div class="cal-header">
+        <button class="icon-btn" id="cal-prev">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <h2 class="cal-month-title" id="cal-month-title"></h2>
+        <button class="icon-btn" id="cal-next">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      <div class="cal-weekdays">
+        <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span>
+        <span>Thu</span><span>Fri</span><span>Sat</span>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="cal-legend">
+        <span class="legend-item"><span class="legend-dot dot-menstrual"></span>Menstrual</span>
+        <span class="legend-item"><span class="legend-dot dot-follicular"></span>Follicular</span>
+        <span class="legend-item"><span class="legend-dot dot-ovulatory"></span>Ovulatory</span>
+        <span class="legend-item"><span class="legend-dot dot-luteal"></span>Luteal</span>
+      </div>
+    </section>
+
+    <!-- ===== FASTING VIEW ===== -->
+    <section id="view-fasting" class="view">
+      <div class="fasting-scroll">
+        <div class="fasting-hero">
+          <div class="fasting-counter-wrap">
+            <div class="fasting-counter-ring">
+              <div class="fasting-num" id="fasting-balance-display">–</div>
+              <div class="fasting-label">Missed Fasts<br>Remaining</div>
+            </div>
+          </div>
+          <p class="fasting-subtitle">Fasting days: <strong>Mondays & Thursdays</strong></p>
+        </div>
+
+        <div class="fasting-actions">
+          <button class="btn-secondary" id="add-missed-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Missed Fast
+          </button>
+          <button class="btn-primary" id="add-compensated-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            Mark Compensated
+          </button>
+        </div>
+
+        <div class="fasting-log-section">
+          <h3 class="section-title">Fasting Log</h3>
+          <div class="fasting-log-list" id="fasting-log-list">
+            <div class="empty-state">No entries yet</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ANALYSIS VIEW ===== -->
+    <section id="view-analysis" class="view">
+      <div class="analysis-scroll">
+        <h2 class="view-title">30-Day Insights</h2>
+
+        <!-- Mood Chart -->
+        <div class="analysis-card">
+          <h3 class="analysis-title">Mood Overview</h3>
+          <div class="mood-chart" id="mood-chart"></div>
+        </div>
+
+        <!-- Symptom Heatmap -->
+        <div class="analysis-card">
+          <h3 class="analysis-title">Symptom Frequency</h3>
+          <div class="symptom-bars" id="symptom-bars"></div>
+        </div>
+
+        <!-- Flow Heatmap -->
+        <div class="analysis-card">
+          <h3 class="analysis-title">Flow Calendar</h3>
+          <div class="flow-heatmap" id="flow-heatmap"></div>
+        </div>
+
+        <!-- Cycle Stats -->
+        <div class="analysis-card">
+          <h3 class="analysis-title">Cycle Statistics</h3>
+          <div class="cycle-stats" id="cycle-stats"></div>
+        </div>
+
+        <!-- Cycle History -->
+        <div class="analysis-card">
+          <h3 class="analysis-title">Cycle Length History</h3>
+          <div class="cycle-history-chart" id="cycle-history-chart"></div>
+        </div>
+
+        <!-- Pad Usage -->
+        <div class="analysis-card">
+          <h3 class="analysis-title">Daily Pad / Tampon Use</h3>
+          <div class="pad-chart" id="pad-chart"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== SETTINGS VIEW ===== -->
+    <section id="view-settings" class="view">
+      <div class="settings-scroll">
+        <h2 class="view-title">Profile & Settings</h2>
+
+        <!-- User Info -->
+        <div class="settings-card">
+          <div class="settings-user-row">
+            <div class="settings-avatar" id="settings-avatar">🌙</div>
+            <div>
+              <div class="settings-email" id="settings-email">—</div>
+              <div class="settings-joined" id="settings-joined">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cycle Settings -->
+        <div class="settings-card">
+          <h3 class="settings-section-title">Cycle Settings</h3>
+          <div class="field-row">
+            <div class="field-group">
+              <label>Average Cycle Length</label>
+              <div class="stepper-row">
+                <button class="stepper-btn" id="cycle-avg-dec">−</button>
+                <span class="stepper-val" id="cycle-avg-val">28</span>
+                <span class="stepper-unit">days</span>
+                <button class="stepper-btn" id="cycle-avg-inc">+</button>
+              </div>
+            </div>
+            <div class="field-group">
+              <label>Period Length</label>
+              <div class="stepper-row">
+                <button class="stepper-btn" id="period-len-dec">−</button>
+                <span class="stepper-val" id="period-len-val">5</span>
+                <span class="stepper-unit">days</span>
+                <button class="stepper-btn" id="period-len-inc">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="field-group" style="margin-top:12px">
+            <label>Last Period Start Date</label>
+            <input type="date" id="settings-last-period" />
+          </div>
+          <button class="btn-primary" style="margin-top:16px;width:100%" id="save-profile-btn">
+            Save Changes
+          </button>
+        </div>
+
+        <!-- Streak Card -->
+        <div class="settings-card streak-card">
+          <h3 class="settings-section-title">Logging Streak</h3>
+          <div class="streak-display">
+            <div class="streak-flame">🔥</div>
+            <div class="streak-info">
+              <div class="streak-num" id="streak-num">0</div>
+              <div class="streak-label">days in a row</div>
+            </div>
+            <div class="streak-best">
+              <div class="streak-best-num" id="streak-best">0</div>
+              <div class="streak-best-label">best streak</div>
+            </div>
+          </div>
+          <div class="streak-dots" id="streak-dots"></div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="settings-card">
+          <h3 class="settings-section-title">Notifications</h3>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Fasting Reminders</div>
+              <div class="settings-row-sub">Mon & Thu at 05:00 AM</div>
+            </div>
+            <button class="toggle-btn" id="fasting-notif-toggle">Enable</button>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Phase Change Alerts</div>
+              <div class="settings-row-sub">When your cycle phase changes</div>
+            </div>
+            <button class="toggle-btn" id="phase-notif-toggle">Enable</button>
+          </div>
+        </div>
+
+        <!-- Data -->
+        <div class="settings-card">
+          <h3 class="settings-section-title">Data</h3>
+          <button class="btn-secondary" style="width:100%;margin-bottom:10px" id="export-data-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export My Data (JSON)
+          </button>
+          <button class="btn-danger" style="width:100%" id="signout-settings-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sign Out
+          </button>
+        </div>
+
+        <div class="settings-footer">
+          Luna v1.2.0 — Your data stays yours 🌙
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loading-overlay">
+    <div class="loading-moon">
+      <svg viewBox="0 0 60 60" style="width:64px;height:64px">
+        <path d="M30 6 C18 6 6 18 6 30 C6 42 18 54 30 54 C24 44 22 37 22 30 C22 23 24 16 30 6Z" fill="#e8708a" opacity="0.9"/>
+        <circle cx="38" cy="20" r="4" fill="#d4a853"/>
+        <circle cx="42" cy="34" r="2" fill="#d4a853" opacity="0.7"/>
+      </svg>
+    </div>
+    <p class="loading-text">Loading your Luna…</p>
+  </div>
+
+</div>
+
+<!-- ===== LOGGING MODAL ===== -->
+<div class="modal-overlay" id="log-modal-overlay">
+  <div class="modal" id="log-modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modal-date-title">Log Day</h3>
+      <button class="modal-close" id="modal-close-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Flow Section -->
+      <div class="modal-section">
+        <h4 class="modal-section-title">Flow Level</h4>
+        <div class="flow-slider-wrap">
+          <div class="flow-labels">
+            <span>None</span><span>Spotting</span><span>Light</span><span>Medium</span><span>Heavy</span>
+          </div>
+          <input type="range" id="flow-slider" min="0" max="4" value="0" class="flow-slider" />
+          <div class="flow-indicator" id="flow-indicator" data-level="none">No flow today</div>
+        </div>
+      </div>
+
+      <!-- Pad Count -->
+      <div class="modal-section">
+        <h4 class="modal-section-title">Pad / Tampon Count</h4>
+        <div class="counter-row">
+          <button class="counter-btn" id="pad-decrement">−</button>
+          <span class="counter-value" id="pad-count-display">0</span>
+          <button class="counter-btn" id="pad-increment">+</button>
+        </div>
+      </div>
+
+      <!-- Mood -->
+      <div class="modal-section">
+        <h4 class="modal-section-title">Mood</h4>
+        <div class="mood-grid" id="mood-grid">
+          <button class="mood-btn" data-mood="happy">😊 Happy</button>
+          <button class="mood-btn" data-mood="calm">😌 Calm</button>
+          <button class="mood-btn" data-mood="anxious">😰 Anxious</button>
+          <button class="mood-btn" data-mood="sad">😢 Sad</button>
+          <button class="mood-btn" data-mood="irritable">😤 Irritable</button>
+          <button class="mood-btn" data-mood="tired">😴 Tired</button>
+          <button class="mood-btn" data-mood="energetic">⚡ Energetic</button>
+          <button class="mood-btn" data-mood="focused">🎯 Focused</button>
+        </div>
+      </div>
+
+      <!-- Symptoms -->
+      <div class="modal-section">
+        <h4 class="modal-section-title">Symptoms</h4>
+        <div class="symptom-grid" id="symptom-grid">
+          <button class="symptom-btn" data-symptom="cramps">Cramps</button>
+          <button class="symptom-btn" data-symptom="headache">Headache</button>
+          <button class="symptom-btn" data-symptom="bloating">Bloating</button>
+          <button class="symptom-btn" data-symptom="backache">Back Pain</button>
+          <button class="symptom-btn" data-symptom="nausea">Nausea</button>
+          <button class="symptom-btn" data-symptom="fatigue">Fatigue</button>
+          <button class="symptom-btn" data-symptom="tender_breasts">Tender Breasts</button>
+          <button class="symptom-btn" data-symptom="insomnia">Insomnia</button>
+          <button class="symptom-btn" data-symptom="spotting">Spotting</button>
+          <button class="symptom-btn" data-symptom="acne">Acne</button>
+        </div>
+        <div class="custom-symptom-row">
+          <input type="text" id="custom-symptom-input" placeholder="Add custom symptom…" />
+          <button class="btn-sm" id="add-custom-symptom-btn">Add</button>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="modal-section">
+        <h4 class="modal-section-title">Notes</h4>
+        <textarea id="log-notes" placeholder="How are you feeling today?…" rows="3"></textarea>
+      </div>
+
+      <!-- Vaginal Health (collapsible) -->
+      <div class="modal-section collapsible-section">
+        <button class="collapsible-toggle" id="discharge-toggle">
+          <span>Vaginal Health (Optional)</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="collapsible-body" id="discharge-body">
+          <div class="field-row">
+            <div class="field-group">
+              <label>Colour / Appearance</label>
+              <select id="discharge-colour">
+                <option value="">— Select —</option>
+                <option value="clear">Clear</option>
+                <option value="white">White / Milky</option>
+                <option value="cream">Creamy</option>
+                <option value="yellow">Yellow</option>
+                <option value="brown">Brown</option>
+                <option value="pink">Pink / Bloody</option>
+                <option value="grey">Grey</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label>Consistency</label>
+              <select id="discharge-consistency">
+                <option value="">— Select —</option>
+                <option value="watery">Watery</option>
+                <option value="stretchy">Stretchy / Egg White</option>
+                <option value="creamy">Creamy</option>
+                <option value="thick">Thick / Chunky</option>
+                <option value="none">None / Dry</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="modal-cancel-btn">Cancel</button>
+      <button class="btn-primary" id="modal-save-btn">Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FASTING MODAL ===== -->
+<div class="modal-overlay" id="fasting-modal-overlay">
+  <div class="modal modal-sm" id="fasting-modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="fasting-modal-title">Add Entry</h3>
+      <button class="modal-close" id="fasting-modal-close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="field-group">
+        <label>Date</label>
+        <input type="date" id="fasting-date" />
+      </div>
+      <div class="field-group">
+        <label>Reason (optional)</label>
+        <input type="text" id="fasting-reason" placeholder="e.g. Travel, illness…" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="fasting-cancel-btn">Cancel</button>
+      <button class="btn-primary" id="fasting-save-btn">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast"></div>
+
+<!-- ===== OFFLINE BANNER ===== -->
+<div class="offline-banner" id="offline-banner">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+  You're offline — changes will sync when reconnected
+</div>
+
+<script src="js/supabase-config.js"></script>
+<script src="js/cycle-engine.js"></script>
+<script src="js/fasting.js"></script>
+<script src="js/calendar.js"></script>
+<script src="js/analysis.js"></script>
+<script src="js/notifications.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
